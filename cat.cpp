@@ -3,9 +3,7 @@
 #include <string>
 #include <cerrno>
 #include <sysexits.h>
-#ifdef unix
-#include <unistd.h>
-#else
+#ifdef _WIN32
 #include <io.h>
 #endif
 
@@ -14,10 +12,13 @@ void cat(istream &is);
 int main(int argc, char *argv[])
 {
 	ios_base::openmode mode = ios_base::in;
+#ifdef _WIN32
 	if(! ::isatty(fileno(stdout)))
 	{
 		mode |= ios_base::binary;
+		setmode( fileno( stdout ), O_BINARY );
 	}
+#endif
 	if (argc < 2)
 	{
 		cat(cin);
