@@ -2,10 +2,22 @@
 #include <fstream>
 #include <string>
 #include <cerrno>
+#include <sysexits.h>
+#ifdef unix
+#include <unistd.h>
+#else
+#include <io.h>
+#endif
+
 using namespace std;
 void cat(istream &is);
 int main(int argc, char *argv[])
 {
+	ios_base::openmode mode = ios_base::in;
+	if(! ::isatty(fileno(stdout)))
+	{
+		mode |= ios_base::binary;
+	}
 	if (argc < 2)
 	{
 		cat(cin);
@@ -20,12 +32,12 @@ int main(int argc, char *argv[])
 			if (!is)
 			{
 				cerr << ::strerror(errno) << ":" << argv[i] << endl;
-				return 1;
+				return EX_NOINPUT;
 			}
 			cat(is);
 		}
 	}
-	return 0;
+	return EX_OK;
 }
 void cat(istream &is)
 {
